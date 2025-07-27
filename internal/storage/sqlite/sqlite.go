@@ -4,7 +4,9 @@ import (
 	"database/sql"
 	"fmt"
 
-	_ "modernc.org/sqlite"
+	"modernc.org/sqlite"
+	// _ "modernc.org/sqlite"
+	sqlite3 "modernc.org/sqlite/lib"
 )
 
 type Storage struct {
@@ -29,6 +31,10 @@ func New(storagePath string) (*Storage, error) {
 		CREATE INDEX IF NOT EXISTS idx_alias ON url(alias);
 	`)
 
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
 	_, err = smtm.Exec()
 
 	if err != nil {
@@ -49,7 +55,7 @@ func (s *Storage) SaveURL(urlToSave string, alias string) (int64, error) {
 	res, err := stmt.Exec(urlToSave, alias)
 	if err != nil {
 		// Адаптируй это под sqlite а не sqlite3
-		if sqliteErr, ok := err.(*sqlite.Error); ok && sqliteErr.Code() == sqlite.SQLITE_CONSTRAINT_UNIQUE {
+		if sqliteErr, ok := err.(*sqlite.Error); ok && sqliteErr.Code() == sqlite3.SQLITE_CONSTRAINT_UNIQUE {
 			return 0, fmt.Errorf("%s: %w работает уникальность", op, err)
 		}
 		return 0, fmt.Errorf("%s: %w", op, err)

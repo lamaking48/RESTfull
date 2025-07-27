@@ -8,7 +8,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/lamaking48/RESTfull.git/internal/config"
 	"github.com/lamaking48/RESTfull.git/internal/lib/logger/sl"
-	"github.com/lamaking48/RESTfull.git/internal/storage/sqlite"
+	sqlitelocal "github.com/lamaking48/RESTfull.git/internal/storage/sqlite"
 )
 
 const (
@@ -28,26 +28,20 @@ func main() {
 	// log.Info("strting url-shortener", slog.String("env", cfg.Env))
 	// log.Debug("debug messages are enabled")
 
-	storage, err := sqlite.New(cfg.StoragePath)
+	storage, err := sqlitelocal.New(cfg.StoragePath)
 	if err != nil {
 		log.Error("failed to init storage", sl.Err(err))
 		os.Exit(1)
 	}
-	id, err := storage.SaveURL("https://google.com", "google")
+
+	id, err := storage.SaveURL("http://google.com", "Google")
+
 	if err != nil {
 		log.Error("failed to save url", sl.Err(err))
 		os.Exit(1)
 	}
 
-	log.Info("saved url", slog.Int64("id", id))
-
-	id, err = storage.SaveURL("https://google.com", "google")
-	if err != nil {
-		log.Error("failed to save url", sl.Err(err))
-		os.Exit(1)
-	}
-
-	// log.Info("saved url", slog.Int64("id", id))
+	log.Info("saved url is this", slog.Int64("id", id))
 
 	_ = storage
 }
